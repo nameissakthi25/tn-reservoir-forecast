@@ -68,8 +68,13 @@ def build(station: str | None = None) -> pd.DataFrame:
     panel["unusable"] = _flag_long_gaps(panel.valid)
     panel.loc[~panel.valid, "discharge_cumecs"] = np.nan
 
-    # short gaps (<=2 weeks) may be filled; long runs stay NaN by design
-    filled = panel.discharge_cumecs.interpolate(limit=MAX_CONSEC_INTERP_WEEKS)
+    # Short gaps (<=2 weeks) may be filled; long runs stay NaN by design.
+    # limit_area="inside" is load-bearing: without it pandas propagates the last
+    # valid value into TRAILING NaNs, so a partial final week (e.g. 2026-01-04,
+    # 3 days observed) silently receives a copy of the previous week's value.
+    # There is nothing to interpolate *between* at the end of a series.
+    filled = panel.discharge_cumecs.interpolate(
+        limit=MAX_CONSEC_INTERP_WEEKS, limit_area="inside")
     panel["was_interpolated"] = panel.discharge_cumecs.isna() & filled.notna()
     panel["discharge_cumecs"] = filled.where(~panel.unusable)
 

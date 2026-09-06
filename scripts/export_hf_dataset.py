@@ -44,10 +44,16 @@ def main() -> int:
     d = dis.station_daily("BILIGUNDULU").rename(columns={"day": "date"})
     d["date"] = pd.to_datetime(d["date"]).dt.date
     d.to_csv(DATA / "biligundulu_daily.csv", index=False)
+    n_val = int(d.discharge_cumecs.notna().sum())
+    n_interp = int(d.is_interpolated.sum())
     stats["daily"] = dict(
         rows=len(d), first=str(d.date.min()), last=str(d.date.max()),
-        observed=int(d.discharge_cumecs.notna().sum()),
-        spikes=int(d.is_spike.sum()), interpolated=int(d.is_interpolated.sum()),
+        # "observed" means measured — NOT merely non-null. Interpolated days
+        # carry a value but were never observed, and conflating the two
+        # overstates coverage.
+        observed=n_val - n_interp,
+        with_value=n_val, interpolated=n_interp, gaps=len(d) - n_val,
+        spikes=int(d.is_spike.sum()),
         median=round(float(d.discharge_cumecs.median()), 1),
         p99=round(float(d.discharge_cumecs.quantile(0.99)), 1),
     )
@@ -92,7 +98,9 @@ def card(st: dict) -> str:
         f"| {r} | {v['n']} | {v['first']} | {v['last']} |"
         for r, v in s["coverage"].items())
     return f"""---
-license: other
+license:
+  - other
+  - cc-by-4.0
 license_name: godl-india
 license_link: https://www.data.gov.in/Godl
 language:
@@ -120,13 +128,15 @@ configs:
 Cleaned, analysis-ready hydrological series for the Cauvery basin and Tamil Nadu's
 major reservoirs, assembled from Indian government open data.
 
-**Why this exists.** The underlying data is public but not usable as published: the
-national water portal has no Tamil Nadu reservoir file, the Central Water Commission
-publishes reservoir storage only as **weekly PDFs** across two incompatible layouts,
-and India-WRIS times out. These files are the tidy result of resolving that.
+**Why this exists.** The underlying data is public but not usable as published. The
+national water portal's CWC daily reservoir dataset covers only Odisha and Madhya
+Pradesh, and enumerating its Tamil Nadu resources returned no reservoir file. The
+archived reservoir bulletins are **weekly PDFs across two incompatible layouts**.
+India-WRIS was unreachable from two independent networks during collection
+(Aug–Sep 2026). These files are the tidy result of resolving that.
 
-There is also a trap worth knowing about, documented below: **one widely-scraped
-inflow source silently returns today's snapshot for dates it does not have.**
+There is also a trap worth knowing about, documented below: **one inflow source
+silently returns today's snapshot for dates it does not have.**
 
 ## Subsets
 
@@ -135,8 +145,12 @@ inflow source silently returns today's snapshot for dates it does not have.**
 Daily discharge of the Cauvery at **Biligundulu**, the gauging station on the
 Karnataka–Tamil Nadu border about 40 km upstream of Mettur dam. This is the legally
 designated inter-state measurement point for the Cauvery water dispute, which is why
-the record is unusually long and complete: **{d['observed']:,} observed days** over
-54 years.
+the record is unusually long and complete.
+
+Over 54 years and {d['rows']:,} calendar days: **{d['observed']:,} observed**,
+{d['interpolated']} interpolated across gaps of ≤ 2 days (flagged), and {d['gaps']}
+days left empty where gaps were longer. "Observed" here means measured — the
+{d['with_value']:,} rows carrying a value include the interpolated ones.
 
 | column | description |
 |---|---|
@@ -236,8 +250,12 @@ neighbours and > 10,000 m³/s) flags exactly **{d['spikes']} row**: 2018-08-19, 
 
 That row is an entry error, not a unit error. Dividing by 35.31 — the cusecs-to-m³/s
 hypothesis — yields 2,116, which would place the flood *peak below its own shoulders*.
-It is interpolated rather than rescaled. {d['interpolated']} days total are
-interpolated across gaps of ≤ 2 days, all flagged.
+It is interpolated rather than rescaled, and flagged in both `is_spike` and
+`is_interpolated`.
+
+Interpolation never runs off the end of a series: trailing and leading gaps are left
+empty rather than carrying a neighbour's value forward. A partial final week is
+therefore flagged `valid = false` **and** left null, not filled.
 
 ## Usage
 

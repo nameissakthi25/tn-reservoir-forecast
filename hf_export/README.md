@@ -1,5 +1,7 @@
 ---
-license: other
+license:
+  - other
+  - cc-by-4.0
 license_name: godl-india
 license_link: https://www.data.gov.in/Godl
 language:
@@ -27,13 +29,15 @@ configs:
 Cleaned, analysis-ready hydrological series for the Cauvery basin and Tamil Nadu's
 major reservoirs, assembled from Indian government open data.
 
-**Why this exists.** The underlying data is public but not usable as published: the
-national water portal has no Tamil Nadu reservoir file, the Central Water Commission
-publishes reservoir storage only as **weekly PDFs** across two incompatible layouts,
-and India-WRIS times out. These files are the tidy result of resolving that.
+**Why this exists.** The underlying data is public but not usable as published. The
+national water portal's CWC daily reservoir dataset covers only Odisha and Madhya
+Pradesh, and enumerating its Tamil Nadu resources returned no reservoir file. The
+archived reservoir bulletins are **weekly PDFs across two incompatible layouts**.
+India-WRIS was unreachable from two independent networks during collection
+(Aug–Sep 2026). These files are the tidy result of resolving that.
 
-There is also a trap worth knowing about, documented below: **one widely-scraped
-inflow source silently returns today's snapshot for dates it does not have.**
+There is also a trap worth knowing about, documented below: **one inflow source
+silently returns today's snapshot for dates it does not have.**
 
 ## Subsets
 
@@ -42,8 +46,12 @@ inflow source silently returns today's snapshot for dates it does not have.**
 Daily discharge of the Cauvery at **Biligundulu**, the gauging station on the
 Karnataka–Tamil Nadu border about 40 km upstream of Mettur dam. This is the legally
 designated inter-state measurement point for the Cauvery water dispute, which is why
-the record is unusually long and complete: **19,809 observed days** over
-54 years.
+the record is unusually long and complete.
+
+Over 54 years and 19,848 calendar days: **19,664 observed**,
+145 interpolated across gaps of ≤ 2 days (flagged), and 39
+days left empty where gaps were longer. "Observed" here means measured — the
+19,809 rows carrying a value include the interpolated ones.
 
 | column | description |
 |---|---|
@@ -151,8 +159,12 @@ neighbours and > 10,000 m³/s) flags exactly **1 row**: 2018-08-19, recorded
 
 That row is an entry error, not a unit error. Dividing by 35.31 — the cusecs-to-m³/s
 hypothesis — yields 2,116, which would place the flood *peak below its own shoulders*.
-It is interpolated rather than rescaled. 145 days total are
-interpolated across gaps of ≤ 2 days, all flagged.
+It is interpolated rather than rescaled, and flagged in both `is_spike` and
+`is_interpolated`.
+
+Interpolation never runs off the end of a series: trailing and leading gaps are left
+empty rather than carrying a neighbour's value forward. A partial final week is
+therefore flagged `valid = false` **and** left null, not filled.
 
 ## Usage
 
