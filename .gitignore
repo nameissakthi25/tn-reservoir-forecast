@@ -1,0 +1,21 @@
+# Raw and intermediate data — regenerate with `make data` (see scripts/fetch_data.py).
+# data/raw is ~716 MB (493 CWC bulletin PDFs + 80 MB of NWDP discharge CSVs) and is
+# deliberately treated as immutable cache, not source.
+data/raw/
+data/interim/
+
+# Large intermediates. The small result CSVs in data/processed/ ARE tracked —
+# they are the findings, and reviewers should be able to read them without a rerun.
+data/processed/*.parquet
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Local tooling / OS
+.claude/settings.local.json
+.DS_Store

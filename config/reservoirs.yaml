@@ -1,0 +1,90 @@
+# TN reservoirs. `cwc_name` is what the bulletin prints; names drift across
+# years (METTUR(STANLEY) vs METTUR) so parsing normalises parentheticals.
+#
+# coverage_note records what the 2015-2025 bulletin archive actually contains,
+# measured -- not assumed.
+
+reservoirs:
+  - name: Mettur
+    cwc_name: METTUR
+    aliases: [METTUR(STANLEY)]
+    river: Cauvery
+    catchment: [12.10, 77.80]      # rainfall point: local + upstream approach
+    lat: 11.7920
+    lon: 77.8010
+    live_cap_bcm: 2.647
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  - name: Bhavanisagar
+    cwc_name: LOWER BHAWANI
+    river: Bhavani
+    catchment: [11.40, 76.90]
+    lat: 11.4720
+    lon: 77.1090
+    live_cap_bcm: 0.792
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  - name: Vaigai
+    cwc_name: VAIGAI
+    river: Vaigai
+    catchment: [10.05, 77.45]
+    lat: 10.0500
+    lon: 77.5600
+    live_cap_bcm: 0.172
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  - name: Parambikulam
+    cwc_name: PARAMBIKULAM
+    river: Chalakudy
+    catchment: [10.39, 76.79]
+    lat: 10.3900
+    lon: 76.7900
+    live_cap_bcm: 0.380
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  - name: Aliyar
+    cwc_name: ALIYAR
+    river: Aliyar
+    catchment: [10.48, 76.97]
+    lat: 10.4800
+    lon: 76.9700
+    live_cap_bcm: 0.095
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  - name: Sholayar
+    cwc_name: SHOLAYAR
+    river: Chalakudy
+    catchment: [10.32, 76.73]
+    lat: 10.3200
+    lon: 76.7300
+    live_cap_bcm: 0.143
+    coverage_note: "99.4% of weeks, 2015-04-16 onward"
+
+  # --- present in the bulletin but NOT usable as backtest targets ------------
+  - name: Sathanur
+    cwc_name: SATHANUR
+    lat: 12.1800
+    lon: 78.8500
+    live_cap_bcm: 0.207
+    usable: false
+    coverage_note: "only 31.7% -- CWC began reporting 2022-02-10"
+
+  - name: Manimuthar
+    cwc_name: MANIMUTHAR
+    lat: 8.6600
+    lon: 77.4000
+    live_cap_bcm: 0.156
+    usable: false
+    coverage_note: "only 1.1% -- appears from 2025-04 only"
+
+  - name: Papanasam
+    cwc_name: KARAYAR
+    lat: 8.7000
+    lon: 77.3600
+    live_cap_bcm: 0.149
+    usable: false
+    coverage_note: "only 1.1% -- appears from 2025-04 only"
+
+# Requested in the spec but absent from the CWC bulletin entirely.
+# Both DO appear on tnagriculture.in, whose archive is partial and unreliable.
+absent_from_cwc: [Amaravathi, Krishnagiri]

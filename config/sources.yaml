@@ -1,0 +1,73 @@
+# Data sources for the TN reservoir / Cauvery inflow forecast.
+# Every entry was reachability-verified on 2026-09-04; see README for the audit.
+
+target:
+  name: BILIGUNDULU
+  description: >
+    Cauvery discharge at the Karnataka -> Tamil Nadu border gauge, ~40 km
+    upstream of Mettur. Legally designated inter-state measurement point.
+    REGULATED flow, not natural: Karnataka's deliveries are set by the CWDT
+    award as modified by the Supreme Court (2018) and directed by CWRC/CWMA.
+  units: m3/sec
+  lat: 12.182222
+  lon: 77.723889
+
+discharge:
+  agency: CWC via National Water Data Portal (CKAN)
+  host: https://nwdp.nwic.gov.in           # NOTE: nwdp.nwic.in mirror is DOWN
+  license: Other (Open) / OGL India
+  resources:
+    - file: disch_tn_1950_2000.csv
+      url: https://nwdp.nwic.gov.in/dataset/08fa3fd0-7861-471d-a295-27c1b239d1fa/resource/cba07162-d1da-4987-b52e-0c1e2173e287/download/riverdischarge_manual_daily_cwc_tn_1950_2000.csv
+    - file: disch_tn_2001_2025.csv
+      url: https://nwdp.nwic.gov.in/dataset/08fa3fd0-7861-471d-a295-27c1b239d1fa/resource/fca9df0b-47b1-4f1a-8e59-1b43a8c0ae73/download/river_discharge_manual_daily_cwc_tn_2001_2025.csv
+
+climate_indices:
+  oni:
+    url: https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt
+    note: "origin.cpc.ncep.noaa.gov no longer resolves; use www."
+  dmi:
+    url: https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data
+
+# Upper Cauvery catchment in Karnataka - the rainfall that becomes Biligundulu
+# flow. Biligundulu gauges Karnataka's outflow, so KARNATAKA rainfall is the
+# driver, not Tamil Nadu's.
+rainfall:
+  api: https://archive-api.open-meteo.com/v1/archive
+  points:
+    - {name: kodagu,   lat: 12.42, lon: 75.74}   # Cauvery headwaters
+    - {name: hassan,   lat: 13.00, lon: 76.10}
+    - {name: mysore,   lat: 12.30, lon: 76.65}
+    - {name: kabini,   lat: 11.98, lon: 76.35}
+    - {name: hemavathy,lat: 12.82, lon: 76.10}
+
+# Cauvery governance regimes. Breaks verified empirically: dry-season median
+# flow roughly halves after 2007 while annual volume is ~unchanged.
+regimes:
+  - {name: pre1991,   start: 1971, note: "no binding allocation"}
+  - {name: interim91, start: 1991, note: "CWDT interim order"}
+  - {name: award07,   start: 2007, note: "CWDT final award"}
+  - {name: cwma18,    start: 2018, note: "SC modification + CWMA/CWRC"}
+
+# Tribunal monthly delivery schedule at Biligundulu (TMC), per the CWDT final
+# award as modified by the Supreme Court 2018. Total 177.25 TMC.
+# Known in advance and legally binding => leakage-free past-future covariate.
+schedule_tmc:
+  6: 9.19
+  7: 31.24
+  8: 45.95
+  9: 36.76
+  10: 20.22
+  11: 13.78
+  12: 7.35
+  1: 2.76
+  2: 2.20
+  3: 2.20
+  4: 2.20
+  5: 2.20
+
+analysis:
+  train_start_wy: 1991      # exclude pre-1991 no-allocation regime
+  sensitivity_start_wy: 2007
+  horizons_weeks: [1, 4, 8, 13]
+  quantiles: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]

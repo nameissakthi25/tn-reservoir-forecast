@@ -1,0 +1,18 @@
+[project]
+name = "tn-reservoir-forecast"
+version = "0.1.0"
+description = "Cauvery inflow and TN reservoir storage forecasting with TimesFM-3"
+requires-python = ">=3.11"
+dependencies = [
+    "timesfm[torch]",
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pyarrow>=14",
+    "pyyaml>=6",
+    "matplotlib>=3.8",
+    "pypdf>=4",          # CWC bulletin parsing, for the storage target
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
