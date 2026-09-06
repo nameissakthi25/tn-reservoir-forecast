@@ -58,7 +58,7 @@ choices tested — see Sensitivity below).
 | persistence | +0.115 | −0.317 | −0.761 | −1.214 |
 | seasonal naive | −0.397 | −0.427 | −0.423 | −0.388 |
 
-At **1 week** TimesFM-3 is clearly better than climatology (23% CRPS reduction) and
+At **1 week** TimesFM-3 is clearly better than climatology (25% CRPS reduction) and
 better than persistence, the strongest naive baseline. At **4 weeks** the margin is
 small but real (+6%). At **8 and 13 weeks it ties or loses** — climatology is as good
 as or better than the foundation model.
@@ -67,7 +67,7 @@ That is the answer to the question the project asked, and the long-horizon resul
 not a bug to be tuned away. Beyond about a month, the seasonal cycle is essentially
 all the information there is in this series, and climatology already encodes it.
 
-**Covariates add almost nothing**: +0.233 vs +0.223 at h=1, and the two modes are
+**Covariates add almost nothing**: +0.254 vs +0.232 at h=1, and the two modes are
 within ~0.03 everywhere. Rainfall, ONI, DMI, the tribunal schedule and week-of-year
 together buy roughly one percentage point of skill. This corroborates the TimesFM-3
 claim that the model performs well without covariates, and it is a negative result
@@ -77,9 +77,10 @@ complexity.
 ## Target 2 — TN reservoir storage
 
 Panel: 526 weeks, 2015-04-16 → 2025-05-08, parsed from 493 CWC bulletin PDFs
-(3,088 rows, **zero** row-date/filename-date mismatches). Six reservoirs at 99.4%
-coverage: Mettur, Bhavanisagar, Vaigai, Parambikulam, Aliyar, Sholayar. 882 scored
-origin-reservoir pairs.
+(3,088 parsed reservoir-week records across all nine reservoirs, **zero**
+row-date/filename-date mismatches). After snapping to a 526-week grid, six reservoirs
+— Mettur, Bhavanisagar, Vaigai, Parambikulam, Aliyar, Sholayar — have 523 of 526 weeks
+each, or **99.4%**. 882 scored origin-reservoir pairs.
 
 **Climatology is the wrong bar for storage, and reporting only it would flatter the
 model badly.** Storage is a *stock* — the running integral of inflow minus release —
@@ -199,6 +200,10 @@ LoRA fine-tuning was run on the storage target under the pre-registered protocol
 strictly prior to that fold, with a deliberately contaminated negative control and a
 stopping rule fixed in advance. **It failed every criterion at every horizon.**
 
+Absolute CRPS below differs from the main storage table because this harness scores
+74 origins (`--every 4`) against that table's 147 (`--every 2`); the fine-tuned vs
+zero-shot comparison is internally consistent, which is the question at issue.
+
 | horizon | CRPS zero-shot | CRPS fine-tuned | gain | P10–P90 coverage | control gain |
 |---|---|---|---|---|---|
 | 1 | 0.0141 | 0.0139 | +1.2% | 0.74 | +3.0% ⚠ |
@@ -283,7 +288,7 @@ Three things the run did establish:
    against storage's collapse to 0.52 — which *reverses* the expectation that a repeat
    would indict LoRA generally.
 3. **A directional signal survives the block.** At h=13, only 5 of 25 folds improved
-   (sign p=0.9995) — strong evidence toward fine-tuning hurting at long horizon, even
+   (sign test against the null of no harm, p=0.002) — strong evidence toward fine-tuning hurting at long horizon, even
    though the formal verdict is withheld.
 
 ### Why the discharge test was not rescued, and where it stops
@@ -312,7 +317,7 @@ design is recorded in `docs/finetuning-protocol.md` §4: keep the control as a p
 validity gate, and select hyperparameters by nested validation inside each fold's
 training slice. Nothing else in this study depends on the outcome.
 
-Two bugs were caught before this result was believed, both mine. A single missing week
+Two bugs were caught before this result was believed, both in the evaluation code rather than the model. A single missing week
 (2022-04-28) put NaN in the target windows of folds 2023+, silently destroying four of
 eight adapters — the first run's clean-looking FAIL table was meaningless. The
 protocol's lower trip-wire flagged it as uninterpretable before it could be reported.
@@ -434,7 +439,7 @@ p=0.72). **The seasonal shape does**:
 schedule reallocates *when* water crosses the border, not how much.
 
 So training uses **1991–2025** (35 water years): pre-1991 is a different generating
-process, while 2007+ alone would give only 18 years and miss the ≥20-year
+process, while 2007+ alone would give only 19 years and miss the ≥20-year
 climatology the spec wants. Regime enters as an indicator with breaks at 2007 and
 2018.
 
@@ -547,9 +552,9 @@ python src/plots.py storage
 python src/calibration.py                  # coverage / PIT, both targets
 ```
 
-Ingest for the storage target must run with the tool sandbox disabled —
-`cwc.gov.in` is unreachable from inside it. NWDP, Open-Meteo, CPC and PSL are all
-reachable sandboxed.
+`cwc.gov.in` is unreachable from some networks; if the bulletin fetch fails, try
+another connection. NWDP, Open-Meteo, CPC and PSL were reachable from every network
+tried.
 
 | output | what |
 |---|---|

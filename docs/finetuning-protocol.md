@@ -30,7 +30,8 @@
 >    0.72-0.75 (from 0.76-0.83 zero-shot) against storage's collapse to 0.52. This
 >    *reverses* the prior expectation that a repeat would indict LoRA generally.
 > 3. **A directional signal survives.** h=13 consistency was 5/25 folds improving,
->    sign p=0.9995 — strong evidence toward fine-tuning hurting at long horizon,
+>    sign test against the null of no harm, p=0.002 — strong evidence toward
+>    fine-tuning hurting at long horizon,
 >    even though the formal verdict is blocked.
 >
 > **Next attempt has a concrete precondition, not a blind search: raise learning

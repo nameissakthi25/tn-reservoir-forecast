@@ -12,8 +12,8 @@ Caveats established in the data audit and carried into the README:
     and Papanasam appears as KARAYAR. Amaravathi and Krishnagiri are absent
     entirely. Sholayar is present as a bonus.
 
-cwc.gov.in is unreachable from the tool sandbox, so downloads must run with the
-sandbox disabled. Everything is cached under data/raw/cwc/.
+cwc.gov.in is unreachable from some networks; if fetches fail, try another
+connection. Everything is cached under data/raw/cwc/, so this runs once.
 """
 from __future__ import annotations
 

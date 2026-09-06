@@ -32,9 +32,10 @@ major reservoirs, assembled from Indian government open data.
 **Why this exists.** The underlying data is public but not usable as published. The
 national water portal's CWC daily reservoir dataset covers only Odisha and Madhya
 Pradesh, and enumerating its Tamil Nadu resources returned no reservoir file. The
-archived reservoir bulletins are **weekly PDFs across two incompatible layouts**.
-India-WRIS was unreachable from two independent networks during collection
-(Aug–Sep 2026). These files are the tidy result of resolving that.
+archived reservoir bulletins are **weekly PDFs across two incompatible layouts**, and
+that public index stops at 2025-05-08 — reservoir reporting moved to the RSMS portal
+in April 2025. India-WRIS was unreachable from two independent networks during
+collection (Aug–Sep 2026). These files are the tidy result of resolving that.
 
 There is also a trap worth knowing about, documented below: **one inflow source
 silently returns today's snapshot for dates it does not have.**
@@ -171,9 +172,9 @@ therefore flagged `valid = false` **and** left null, not filled.
 ```python
 from datasets import load_dataset
 
-daily = load_dataset("USER/tn-water-panels", "biligundulu_daily", split="train")
-weekly = load_dataset("USER/tn-water-panels", "biligundulu_weekly", split="train")
-storage = load_dataset("USER/tn-water-panels", "tn_reservoir_storage_weekly", split="train")
+daily = load_dataset("nameissakthi/tn-water-panels", "biligundulu_daily", split="train")
+weekly = load_dataset("nameissakthi/tn-water-panels", "biligundulu_weekly", split="train")
+storage = load_dataset("nameissakthi/tn-water-panels", "tn_reservoir_storage_weekly", split="train")
 ```
 
 ## Provenance and attribution
@@ -201,7 +202,7 @@ requirement should confirm with NWIC directly.
 ## Reproducing
 
 Every file here is regenerated from primary sources by the pipeline at
-[tn-reservoir-forecast](https://github.com/USER/tn-reservoir-forecast):
+[tn-reservoir-forecast](https://github.com/nameissakthi25/tn-reservoir-forecast):
 
 ```bash
 python scripts/fetch_data.py --all
@@ -216,6 +217,6 @@ python scripts/export_hf_dataset.py
   title  = {Tamil Nadu Water Panels: Cauvery discharge and reservoir storage},
   year   = {2026},
   note   = {Derived from Central Water Commission open data under GODL-India},
-  url    = {https://huggingface.co/datasets/USER/tn-water-panels}
+  url    = {https://huggingface.co/datasets/nameissakthi/tn-water-panels}
 }
 ```

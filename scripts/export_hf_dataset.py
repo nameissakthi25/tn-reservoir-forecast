@@ -131,9 +131,10 @@ major reservoirs, assembled from Indian government open data.
 **Why this exists.** The underlying data is public but not usable as published. The
 national water portal's CWC daily reservoir dataset covers only Odisha and Madhya
 Pradesh, and enumerating its Tamil Nadu resources returned no reservoir file. The
-archived reservoir bulletins are **weekly PDFs across two incompatible layouts**.
-India-WRIS was unreachable from two independent networks during collection
-(Aug–Sep 2026). These files are the tidy result of resolving that.
+archived reservoir bulletins are **weekly PDFs across two incompatible layouts**, and
+that public index stops at 2025-05-08 — reservoir reporting moved to the RSMS portal
+in April 2025. India-WRIS was unreachable from two independent networks during
+collection (Aug–Sep 2026). These files are the tidy result of resolving that.
 
 There is also a trap worth knowing about, documented below: **one inflow source
 silently returns today's snapshot for dates it does not have.**
